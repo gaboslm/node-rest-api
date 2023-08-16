@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>REST API Test</title>
+  <style>
+    article{
+      border: 1px solid #ccc;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      transition: .2s ease-in-out;
+    }
+    article:hover{
+      background-color: #eee;
+    }
+    img{
+      height: auto;
+      width: 320px;
+      max-width: 100%;
+    }
+    .movies{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+  </style>
+  <script type="module">
+    fetch('http://localhost:3000/movies')
+    .then(res => res.json())
+    .then(movies => {
+      const html = (`<div class="movies">`)
+        .concat(movies.map(m => 
+        `<article data-id="${m.id}">
+            <h2>${m.title}</h2>
+            <img src="${m.poster}" alt="${m.title}">
+            <p>${m.year}</p>
+          </article>`
+        )
+        .join(''))
+        .concat('</div>')
+
+      document.querySelector('main').innerHTML = html
+    })
+    .catch(err => console.log(err))
+  </script>
+</head>
+<body>
+  <main></main>
+</body>
+</html>
