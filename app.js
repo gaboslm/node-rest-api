@@ -1,8 +1,8 @@
 const express = require('express') // require -> commonJS
 const cors = require('cors')
-
 const crypto = require('node:crypto')
 const movies = require('./movies.json')
+const { validateMovie } = require('./schemas/movies')
 
 const PORT = process.env.PORT ?? 3000
 
@@ -46,30 +46,31 @@ app.get('/movies', (req, res) => {
 })
 
 app.post('/movies', (req, res) => {
-  const {
-    title,
-    genre,
-    year,
-    director,
-    duration,
-    rate,
-    poster
-  } = req.body
+  const result = validateMovie(req.body)
+
+  if (result.error) {
+    return res.status(400).json({ error: JSON.parse(result.error.message) })
+  }
 
   const newMovie = {
     id: crypto.randomUUID(), // uuid v4
-    title,
-    genre,
-    year,
-    director,
-    duration,
-    rate,
-    poster
+    ...result.data
   }
 
   movies.push(newMovie)
 
   res.status(201).json(newMovie)
+})
+
+app.patch('/movies/:id', (req, res) => {
+  const { id } = req.params
+  const movieIndex = movies.findIndex(m => m.id === id)
+
+  if (movieIndex !== -1) {
+    return res.status(404).json({ message: 'Movie not found' })
+  }
+
+  movies.splice(movieIndex, 1)
 })
 
 app.get('/movies/:id', (req, res) => {
